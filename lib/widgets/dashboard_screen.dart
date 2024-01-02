@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:school_management_app/widgets/add_lecturer_screen.dart';
+import 'package:school_management_app/widgets/add_teacher_screen.dart';
 import 'package:school_management_app/widgets/add_student_screen.dart';
 import 'package:school_management_app/widgets/dashboard_list_widget.dart';
 
@@ -10,7 +10,7 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Page'),
+        title: const Text('Home Page'),
         centerTitle: true,
       ),
       body: DataList(),
@@ -62,18 +62,18 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             ),
           ),
           ListTile(
-            title: Text('Add Lecturer'),
+            title: const Text('Add Teacher'),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LecturerDataEntry(),
+                  builder: (context) => TeacherDataEntry(),
                 ),
               );
             },
           ),
           ListTile(
-            title: Text('Add Student'),
+            title: const Text('Add Student'),
             onTap: () {
               Navigator.push(
                 context,

@@ -4,25 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class StudentDataEntry extends StatefulWidget {
-  const StudentDataEntry({super.key});
+class TeacherDataEntry extends StatefulWidget {
+  const TeacherDataEntry({super.key});
 
   @override
-  State<StudentDataEntry> createState() => _StudentDataEntryState();
+  State<TeacherDataEntry> createState() => _TeacherDataEntryState();
 }
 
-class _StudentDataEntryState extends State<StudentDataEntry> {
+class _TeacherDataEntryState extends State<TeacherDataEntry> {
   final _formKey = GlobalKey<FormState>();
-  var _matricNo = '';
-  var _stuFullName = '';
-  var _course = '';
+  // Lecturer lecturer = Lecturer('', '', '', '');
+  var _staffId = '';
+  var _fullName = '';
+  var _faculty = '';
+  var _subject = '';
 
   Future<bool> _saveData() async {
-    if (_formKey.currentState!.validate()) {
+    // if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final url = Uri.https(
           'shopping-list2-bcc4b-default-rtdb.asia-southeast1.firebasedatabase.app',
-          'student-data.json');
+          'lecturer-data.json');
       try {
         final response = await http.post(
           url,
@@ -31,15 +33,16 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
           },
           body: json.encode(
             {
-              'Matric No': _matricNo,
-              'Full Name': _stuFullName,
-              'Course': _course,
+              'Staff ID': _staffId,
+              'Full Name': _fullName,
+              'Faculty': _faculty,
+              'Subject': _subject,
             },
           ),
         );
 
-        print(response.body);
-        print(response.statusCode);
+        print('Response Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
 
         if (!context.mounted) {
           return true;
@@ -52,47 +55,40 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
         print('Error saving data: $error');
         return false;
       }
-    } else {
-      // Return false if validation fails
-      return false;
-    }
+    // } else {
+    //   // Return false if validation fails
+    //   return false;
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Student'),
+        title: const Text('Add Lecturer'),
         centerTitle: true,
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Form(
+          key: _formKey,
           child: Column(
             children: [
-              const SizedBox(height: 40,),
-              // Matric No
+              // Staff ID
               TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Matric No',
-                  hintText: 'Enter the student matric no',
-                  labelStyle: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.normal),
-                  prefixIcon: const Icon(
-                    Icons.format_list_numbered,
-                    size: 20,
+                maxLength: 10,
+                decoration: const InputDecoration(
+                  labelText: 'Staff ID',
+                  prefixIcon: Icon(
+                    Icons.badge,
+                    size: 30,
                   ),
                   enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 2),
-                      borderRadius: BorderRadius.circular(10)),
-                  floatingLabelStyle: const TextStyle(
-                    fontSize: 18,
+                    borderSide: BorderSide(
+                      width: 3,
+                      color: Colors.purple,
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(width: 1.5),
-                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -104,33 +100,27 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _matricNo = value!;
+                  _staffId = value!;
                 },
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
               // Full Name
               TextFormField(
-                decoration: InputDecoration(
+                maxLength: 50,
+                decoration: const InputDecoration(
                   labelText: 'Full Name',
-                  hintText: 'Enter the student full name',
-                  labelStyle: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.normal),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.person,
-                    size: 20,
+                    size: 30,
                   ),
                   enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 2),
-                      borderRadius: BorderRadius.circular(10)),
-                  floatingLabelStyle: const TextStyle(
-                    fontSize: 18,
+                    borderSide: BorderSide(
+                      width: 3,
+                      color: Colors.purple,
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(width: 1.5),
-                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -142,33 +132,27 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _stuFullName = value!;
+                  _fullName = value!;
                 },
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
-              // Course
+              // Faculty
               TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Course',
-                  hintText: 'Enter the student course',
-                  labelStyle: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.normal),
-                  prefixIcon: const Icon(
+                maxLength: 10,
+                decoration: const InputDecoration(
+                  labelText: 'Faculty',
+                  prefixIcon: Icon(
                     Icons.school,
-                    size: 20,
+                    size: 30,
                   ),
                   enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 2),
-                      borderRadius: BorderRadius.circular(10)),
-                  floatingLabelStyle: const TextStyle(
-                    fontSize: 18,
+                    borderSide: BorderSide(
+                      width: 3,
+                      color: Colors.purple,
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(width: 1.5),
-                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -180,11 +164,43 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _course = value!;
+                  _faculty = value!;
                 },
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
+              ),
+              // Subject
+              TextFormField(
+                maxLength: 30,
+                decoration: const InputDecoration(
+                  labelText: 'Subject',
+                  prefixIcon: Icon(
+                    Icons.book,
+                    size: 30,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      width: 3,
+                      color: Colors.purple,
+                    ),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null ||
+                      value.isEmpty ||
+                      value.trim().length <= 1 ||
+                      value.trim().length > 30) {
+                    return 'Must be between 1 and 30 characters.';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _subject = value!;
+                },
+              ),
+              const SizedBox(
+                height: 10,
               ),
               const SizedBox(height: 12),
               Row(
@@ -200,6 +216,7 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         bool success = await _saveData();
+                        print(success);
                         if (success) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -208,8 +225,8 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                           );
                           // Reset the form after successful data entry
                           _formKey.currentState!.reset();
-
-                          print('#Debug main.dart -> Matric No: $_matricNo');
+        
+                          print('#Debug main.dart -> Staff ID : $_staffId');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

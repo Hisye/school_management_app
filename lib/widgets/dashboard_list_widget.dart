@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/list_screen/lecturer_list_screen.dart';
+import 'list_screen/teacher_list_screen.dart';
 import '../widgets/list_screen/student_list_screen.dart';
 
 class DataList extends StatefulWidget {
@@ -22,7 +22,7 @@ class _DataListState extends State<DataList> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LecturerListScreen(),
+                  builder: (context) => TeacherListScreen(),
                 ),
               );
             },
@@ -43,7 +43,7 @@ class _DataListState extends State<DataList> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Lecturer Data List',
+                          'Teacher Data List',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,

@@ -1,11 +1,11 @@
-class Lecturer {
+class Teacher {
   final String id;
   final String staffId;
   final String fullName;
   final String faculty;
   final String subject;
 
-  Lecturer(
+  Teacher(
       {required this.id,
       required this.staffId,
       required this.fullName,

@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:school_management_app/models/lecturer.dart';
-import 'package:school_management_app/widgets/add_lecturer_screen.dart';
+import 'package:school_management_app/models/teacher.dart';
+import 'package:school_management_app/widgets/add_teacher_screen.dart';
+import 'package:school_management_app/widgets/teacher_info_screen.dart';
 
 
-class LecturerListScreen extends StatefulWidget {
-  const LecturerListScreen({super.key});
+class TeacherListScreen extends StatefulWidget {
+  const TeacherListScreen({super.key});
 
   @override
-  State<LecturerListScreen> createState() => _LecturerListScreenState();
+  State<TeacherListScreen> createState() => _TeacherListScreenState();
 }
 
-class _LecturerListScreenState extends State<LecturerListScreen> {
+class _TeacherListScreenState extends State<TeacherListScreen> {
 
-  List<Lecturer> _LecturerList = [];
+  List<Teacher> _TeacherList = [];
 
   void _loadData() async {
     final url = Uri.https(
@@ -27,10 +28,10 @@ class _LecturerListScreenState extends State<LecturerListScreen> {
     final Map<String, dynamic> listData = json.decode(response.body);
     print('#debug Lecturer-list.dart');
     print(listData);
-    final List<Lecturer> _loadedData = [];
+    final List<Teacher> _loadedData = [];
     for (final data in listData.entries) {
       _loadedData.add(
-        Lecturer(
+        Teacher(
           id: data.key,
           staffId: data.value['Staff ID'],
           fullName: data.value['Full Name'],
@@ -41,21 +42,21 @@ class _LecturerListScreenState extends State<LecturerListScreen> {
     }
 
     setState(() {
-      _LecturerList = _loadedData;
+      _TeacherList = _loadedData;
     });
   }
 
   void _addData() async {
-    await Navigator.of(context).push<Lecturer>(
+    await Navigator.of(context).push<Teacher>(
       MaterialPageRoute(
-        builder: (ctx) => const LecturerDataEntry(),
+        builder: (ctx) => const TeacherDataEntry(),
       ),
     );
 
     _loadData();
   }
 
-  void _removeData(Lecturer data) async {
+  void _removeData(Teacher data) async {
     final url = Uri.https(
       'shopping-list2-bcc4b-default-rtdb.asia-southeast1.firebasedatabase.app',
       'lecturer-data/${data.id}.json',
@@ -67,14 +68,14 @@ class _LecturerListScreenState extends State<LecturerListScreen> {
       if (response.statusCode == 200) {
         // If the delete request is successful, remove the data from the local list
         setState(() {
-          _LecturerList.remove(data);
+          _TeacherList.remove(data);
         });
 
         // show snackbar to indicate delete success
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Lecturer data deleted successfully.'),
+            content: Text('Teacher data deleted successfully.'),
           ),
         );
       } else {
@@ -117,7 +118,7 @@ class _LecturerListScreenState extends State<LecturerListScreen> {
   Widget build(BuildContext context) {
     Widget content = const Center(
       child: Text(
-        'No lecturer data yet...!',
+        'No teacher data yet...!',
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -125,9 +126,9 @@ class _LecturerListScreenState extends State<LecturerListScreen> {
       ),
     );
 
-    if (_LecturerList.isNotEmpty) {
+    if (_TeacherList.isNotEmpty) {
       content = ListView.builder(
-        itemCount: _LecturerList.length,
+        itemCount: _TeacherList.length,
         itemBuilder: (context, index) => Dismissible(
           direction: DismissDirection.endToStart,
           background: Container(
@@ -143,23 +144,25 @@ class _LecturerListScreenState extends State<LecturerListScreen> {
             return await _showDeleteConfirmation(context);
           },
           onDismissed: (direction) {
-            _removeData(_LecturerList[index]);
+            _removeData(_TeacherList[index]);
           },
-          key: ValueKey(_LecturerList[index].id),
+          key: ValueKey(_TeacherList[index].id),
           child: ListTile(
-            title: Text(_LecturerList[index].fullName),
-            subtitle: Text(_LecturerList[index].staffId),
+            title: Text(_TeacherList[index].fullName),
+            subtitle: Text(_TeacherList[index].staffId),
             trailing: Text(
-              _LecturerList[index].faculty,
+              _TeacherList[index].faculty,
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => TeacherInfo(teacher: _TeacherList[index]),));
+            },
           ),
         ),
       );
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lecturer List'),
+        title: const Text('Teacher List'),
         centerTitle: true,
         actions: [
           IconButton(

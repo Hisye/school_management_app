@@ -3,6 +3,7 @@ import 'package:school_management_app/models/student.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:school_management_app/widgets/add_student_screen.dart';
+import 'package:school_management_app/widgets/student_info_screen.dart';
 
 class StudentListScreen extends StatefulWidget {
   const StudentListScreen({super.key});
@@ -89,8 +90,8 @@ class _StudentListScreenState extends State<StudentListScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Delete Confirmation'),
-          content: Text('Are you sure you want to delete this student?'),
+          title: const Text('Delete Confirmation'),
+          content: const Text('Are you sure you want to delete this student?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -149,7 +150,11 @@ class _StudentListScreenState extends State<StudentListScreen> {
             trailing: Text(
               _studentList[index].matricNo,
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => StudentInfo(student: _studentList[index]),
+              ));
+            },
           ),
         ),
       );
