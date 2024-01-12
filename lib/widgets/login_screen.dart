@@ -9,7 +9,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String logo = 'images/umt_logo.png';
+    String logo = 'images/logo_kpm.png';
     String back_pic = 'images/umt_background.jpg';
 
     return Scaffold(
@@ -29,14 +29,14 @@ class LoginScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(
-              height: 90,
+              height: 180,
             ),
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Image.asset(logo),
             ),
             const SizedBox(
-              height: 40,
+              height: 100,
             ),
             Expanded(
               child: Container(
@@ -96,7 +96,7 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(
               height: 10,
             ),
-            const Text('UMT Management', style: TextStyle(fontSize: 18)),
+            const Text('School Management App', style: TextStyle(fontSize: 18)),
             const SizedBox(
               height: 20,
             ),
@@ -174,7 +174,7 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(
               height: 30,
             ),
-            const Center(child: Text('Forgot Password?')),
+            const Center(child: Text('')),
             const SizedBox(
               height: 20,
             ),

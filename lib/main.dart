@@ -57,8 +57,8 @@ class MainPage extends StatelessWidget {
             } else if (snapshot.hasData) {
               // Check the user's email and redirect accordingly
               String userEmail = snapshot.data?.email ?? "";
-              if (userEmail == "kpm@gmail.com") {
-                return KKPMDashboardScreen();
+              if (userEmail == "kpm123@gmail.com") {
+                return KPMDashboardScreen();
               } else {
                 return DashboardScreen();
               }
