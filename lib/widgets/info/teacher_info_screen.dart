@@ -1,47 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:school_management_app/models/student.dart';
-import 'package:school_management_app/widgets/add_student_dc.dart';
-import 'package:school_management_app/widgets/add_student_result.dart';
+import 'package:school_management_app/models/teacher.dart';
+import 'package:school_management_app/widgets/edit/edit_teacher_data.dart';
 
-class StudentInfo extends StatelessWidget {
-  final Student student;
+class TeacherInfo extends StatelessWidget {
+  final Teacher teacher;
 
-  const StudentInfo({Key? key, required this.student}) : super(key: key);
+  const TeacherInfo({Key? key, required this.teacher}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Info'),
+        title: const Text('Teacher Info'),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.add),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
             ),
             onSelected: (value) {
-              if (value == 'AddResult') {
+              if (value == 'EditTeacherData') {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const AddStudentResult(),
+                    builder: (context) => EditTeacherData(
+                      teacher: teacher,
+                    ),
                   ),
                 );
-              } else if (value == 'AddDisciplineCase') {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const AddStudentDC(),
-                  ),
-                );
-              }
+              } 
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
-                value: 'AddResult',
-                child: Text('Add Result'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'AddDisciplineCase',
-                child: Text('Add Discipline Case'),
+                value: 'EditTeacherData',
+                child: Text('Edit Teacher Data'),
               ),
             ],
           ),
@@ -52,11 +42,10 @@ class StudentInfo extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('Full Name:', student.fullName),
-            _buildInfoRow('Matrix Number:', student.matricNo),
-            _buildInfoRow('Course:', student.course),
-            _buildInfoRow('Discipline Case:', "null"),
-            _buildInfoRow('Result', "null")
+            _buildInfoRow('Full Name:', teacher.fullName),
+            _buildInfoRow('Staff ID:', teacher.staffId),
+            _buildInfoRow('Faculty:', teacher.faculty),
+            _buildInfoRow('Subject:', teacher.subject),
           ],
         ),
       ),

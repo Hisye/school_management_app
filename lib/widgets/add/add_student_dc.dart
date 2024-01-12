@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:school_management_app/models/firebase_user.dart';
+
+import 'package:school_management_app/models/student.dart';
 
 class AddStudentDC extends StatefulWidget {
-  const AddStudentDC({Key? key}) : super(key: key);
+  final Student student;
+  const AddStudentDC({required this.student});
 
   @override
   _AddStudentDCState createState() => _AddStudentDCState();
 }
-
-// ... (rest of the imports)
 
 class _AddStudentDCState extends State<AddStudentDC> {
   final _formKey = GlobalKey<FormState>();
@@ -16,6 +20,7 @@ class _AddStudentDCState extends State<AddStudentDC> {
   late DateTime _date = DateTime.now();
   var _disciplineType = 'Academic Misconduct';
   late TextEditingController _dateController;
+  String adminPrefix = FirebaseHelper.getAdminPrefix();
 
   @override
   void initState() {
@@ -49,24 +54,51 @@ class _AddStudentDCState extends State<AddStudentDC> {
   Future<bool> _saveData() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      final url = Uri.https(
+          'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
+          '/$adminPrefix/student-data/${widget.student.id}/discipline-case.json');
+      try {
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode(
+            {
+              'Discipline Type': _disciplineType,
+              'Description': _description,
+              'Date': _date.toIso8601String(),
+            },
+          ),
+        );
 
-      // For demonstration purposes, let's print the values.
-      print('Description: $_description');
-      print('Date: $_date');
-      print('Discipline Type: $_disciplineType');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Discipline Case added successfully'),
-        ),
-      );
-      return true;
+        print(response.body);
+        print(response.statusCode);
+        print('Description: $_description');
+        print('Date: $_date');
+        print('Discipline Type: $_disciplineType');
+        if (!context.mounted) {
+          return true;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Discipline Case added successfully'),
+            ),
+          );
+          Navigator.pop(context, true);
+          return true;
+        }
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot add Discipline Case'),
+          ),
+        );
+        print('Error saving data: $error');
+        return false;
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cannot add Discipline Case'),
-        ),
-      );
+      // Return false if validation fails
       return false;
     }
   }

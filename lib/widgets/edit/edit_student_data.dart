@@ -1,55 +1,85 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
+import 'package:school_management_app/models/student.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:school_management_app/models/firebase_user.dart';
 
-class StudentDataEntry extends StatefulWidget {
-  const StudentDataEntry({super.key});
+class EditStudentData extends StatefulWidget {
+  final Student student;
+
+  const EditStudentData({
+    super.key,
+    required this.student,
+  });
 
   @override
-  State<StudentDataEntry> createState() => _StudentDataEntryState();
+  State<EditStudentData> createState() => _EditStudentDataState();
 }
 
-class _StudentDataEntryState extends State<StudentDataEntry> {
+class _EditStudentDataState extends State<EditStudentData> {
   final _formKey = GlobalKey<FormState>();
-  var _matricNo = '';
-  var _stuFullName = '';
-  var _course = '';
+  late String _fullNameController;
+  late String _matricNoController;
+  late String _courseController;
+  String adminPrefix = FirebaseHelper.getAdminPrefix();
 
-  Future<bool> _saveData() async {
+  void initState() {
+    super.initState();
+    _fullNameController = widget.student.fullName;
+    _matricNoController = widget.student.matricNo;
+    _courseController = widget.student.course;
+  }
+
+  Future<bool> _updateStudentData() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final url = Uri.https(
-          'shopping-list2-bcc4b-default-rtdb.asia-southeast1.firebasedatabase.app',
-          'student-data.json');
+        'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
+        '$adminPrefix/student-data/${widget.student.id}.json',
+      );
+
       try {
-        final response = await http.post(
+        // Fetch existing student data
+        final response = await http.get(url);
+        final existingData = json.decode(response.body);
+
+        // Update only the fields you want to modify
+        existingData['Matric No'] = _matricNoController;
+        existingData['Full Name'] = _fullNameController;
+        existingData['Course'] = _courseController;
+
+        // Now, update the student data with the modified data
+        final updateResponse = await http.put(
           url,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: json.encode(
-            {
-              'Matric No': _matricNo,
-              'Full Name': _stuFullName,
-              'Course': _course,
-            },
-          ),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(existingData),
         );
 
-        print(response.body);
-        print(response.statusCode);
+        // Handle the response as needed
+        print(updateResponse.body);
+        print(updateResponse.statusCode);
+        print('Full Name: $_fullNameController');
+        print('Matric no: $_matricNoController');
+        print('Course: $_courseController');
 
         if (!context.mounted) {
           return true;
         } else {
-          // Handle successful response here
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Student data updated successfully'),
+            ),
+          );
+          Navigator.pop(context, true);
           return true;
         }
       } catch (error) {
-        // Handle errors, and return false
-        print('Error saving data: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot update student data'),
+          ),
+        );
+        print('Error updating data: $error');
         return false;
       }
     } else {
@@ -62,7 +92,7 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Student'),
+        title: const Text('Edit Student'),
         centerTitle: true,
       ),
       body: Form(
@@ -71,9 +101,12 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              const SizedBox(height: 40,),
+              const SizedBox(
+                height: 40,
+              ),
               // Matric No
               TextFormField(
+                initialValue: _matricNoController,
                 decoration: InputDecoration(
                   labelText: 'Matric No',
                   hintText: 'Enter the student matric no',
@@ -104,7 +137,7 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _matricNo = value!;
+                  _matricNoController = value!;
                 },
               ),
               const SizedBox(
@@ -112,6 +145,7 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
               ),
               // Full Name
               TextFormField(
+                initialValue: _fullNameController,
                 decoration: InputDecoration(
                   labelText: 'Full Name',
                   hintText: 'Enter the student full name',
@@ -142,7 +176,7 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _stuFullName = value!;
+                  _fullNameController = value!;
                 },
               ),
               const SizedBox(
@@ -150,6 +184,7 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
               ),
               // Course
               TextFormField(
+                initialValue: _courseController,
                 decoration: InputDecoration(
                   labelText: 'Course',
                   hintText: 'Enter the student course',
@@ -174,13 +209,13 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                   if (value == null ||
                       value.isEmpty ||
                       value.trim().length <= 1 ||
-                      value.trim().length > 10) {
-                    return 'Must be between 1 and 10 characters.';
+                      value.trim().length > 30) {
+                    return 'Must be between 1 and 30 characters.';
                   }
                   return null;
                 },
                 onSaved: (value) {
-                  _course = value!;
+                  _courseController = value!;
                 },
               ),
               const SizedBox(
@@ -199,25 +234,7 @@ class _StudentDataEntryState extends State<StudentDataEntry> {
                   ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        bool success = await _saveData();
-                        if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Data Entry Successful'),
-                            ),
-                          );
-                          // Reset the form after successful data entry
-                          _formKey.currentState!.reset();
-
-                          print('#Debug main.dart -> Matric No: $_matricNo');
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('Error saving data. Please try again.'),
-                            ),
-                          );
-                        }
+                        await _updateStudentData();
                       }
                     },
                     child: const Text('Submit'),

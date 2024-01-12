@@ -3,28 +3,28 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:school_management_app/models/firebase_user.dart';
 
-class TeacherDataEntry extends StatefulWidget {
-  const TeacherDataEntry({super.key});
+class StudentDataEntry extends StatefulWidget {
+  const StudentDataEntry({super.key});
 
   @override
-  State<TeacherDataEntry> createState() => _TeacherDataEntryState();
+  State<StudentDataEntry> createState() => _StudentDataEntryState();
 }
 
-class _TeacherDataEntryState extends State<TeacherDataEntry> {
+class _StudentDataEntryState extends State<StudentDataEntry> {
   final _formKey = GlobalKey<FormState>();
-  // Lecturer lecturer = Lecturer('', '', '', '');
-  var _staffId = '';
-  var _fullName = '';
-  var _faculty = '';
-  var _subject = '';
+  var _matricNo = '';
+  var _stuFullName = '';
+  var _course = '';
+  String adminPrefix = FirebaseHelper.getAdminPrefix();
 
   Future<bool> _saveData() async {
-    // if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final url = Uri.https(
-          'shopping-list2-bcc4b-default-rtdb.asia-southeast1.firebasedatabase.app',
-          'lecturer-data.json');
+          'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
+          '/$adminPrefix/student-data.json');
       try {
         final response = await http.post(
           url,
@@ -33,16 +33,15 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
           },
           body: json.encode(
             {
-              'Staff ID': _staffId,
-              'Full Name': _fullName,
-              'Faculty': _faculty,
-              'Subject': _subject,
+              'Matric No': _matricNo,
+              'Full Name': _stuFullName,
+              'Course': _course,
             },
           ),
         );
 
-        print('Response Status Code: ${response.statusCode}');
-        print('Response Body: ${response.body}');
+        print(response.body);
+        print(response.statusCode);
 
         if (!context.mounted) {
           return true;
@@ -55,40 +54,49 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
         print('Error saving data: $error');
         return false;
       }
-    // } else {
-    //   // Return false if validation fails
-    //   return false;
-    // }
+    } else {
+      // Return false if validation fails
+      return false;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Lecturer'),
+        title: const Text('Add Student'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Form(
-          key: _formKey,
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              // Staff ID
+              const SizedBox(
+                height: 40,
+              ),
+              // Matric No
               TextFormField(
-                maxLength: 10,
-                decoration: const InputDecoration(
-                  labelText: 'Staff ID',
-                  prefixIcon: Icon(
-                    Icons.badge,
-                    size: 30,
+                decoration: InputDecoration(
+                  labelText: 'Matric No',
+                  hintText: 'Enter the student matric no',
+                  labelStyle: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.normal),
+                  prefixIcon: const Icon(
+                    Icons.format_list_numbered,
+                    size: 20,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(10)),
+                  floatingLabelStyle: const TextStyle(
+                    fontSize: 18,
                   ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -100,27 +108,33 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _staffId = value!;
+                  _matricNo = value!;
                 },
               ),
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
               // Full Name
               TextFormField(
-                maxLength: 50,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Full Name',
-                  prefixIcon: Icon(
+                  hintText: 'Enter the student full name',
+                  labelStyle: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.normal),
+                  prefixIcon: const Icon(
                     Icons.person,
-                    size: 30,
+                    size: 20,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(10)),
+                  floatingLabelStyle: const TextStyle(
+                    fontSize: 18,
                   ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -132,27 +146,33 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _fullName = value!;
+                  _stuFullName = value!;
                 },
               ),
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
-              // Faculty
+              // Course
               TextFormField(
-                maxLength: 10,
-                decoration: const InputDecoration(
-                  labelText: 'Faculty',
-                  prefixIcon: Icon(
+                decoration: InputDecoration(
+                  labelText: 'Course',
+                  hintText: 'Enter the student course',
+                  labelStyle: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.normal),
+                  prefixIcon: const Icon(
                     Icons.school,
-                    size: 30,
+                    size: 20,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(10)),
+                  floatingLabelStyle: const TextStyle(
+                    fontSize: 18,
                   ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -164,43 +184,11 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
                   return null;
                 },
                 onSaved: (value) {
-                  _faculty = value!;
+                  _course = value!;
                 },
               ),
               const SizedBox(
-                height: 10,
-              ),
-              // Subject
-              TextFormField(
-                maxLength: 30,
-                decoration: const InputDecoration(
-                  labelText: 'Subject',
-                  prefixIcon: Icon(
-                    Icons.book,
-                    size: 30,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null ||
-                      value.isEmpty ||
-                      value.trim().length <= 1 ||
-                      value.trim().length > 30) {
-                    return 'Must be between 1 and 30 characters.';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _subject = value!;
-                },
-              ),
-              const SizedBox(
-                height: 10,
+                height: 20,
               ),
               const SizedBox(height: 12),
               Row(
@@ -216,7 +204,6 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         bool success = await _saveData();
-                        print(success);
                         if (success) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -225,8 +212,8 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
                           );
                           // Reset the form after successful data entry
                           _formKey.currentState!.reset();
-        
-                          print('#Debug main.dart -> Staff ID : $_staffId');
+
+                          print('#Debug main.dart -> Matric No: $_matricNo');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

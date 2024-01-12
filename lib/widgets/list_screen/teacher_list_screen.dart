@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:school_management_app/models/teacher.dart';
-import 'package:school_management_app/widgets/add_teacher_screen.dart';
-import 'package:school_management_app/widgets/teacher_info_screen.dart';
-
+import 'package:school_management_app/widgets/add/add_teacher_screen.dart';
+import 'package:school_management_app/widgets/info/teacher_info_screen.dart';
+import 'package:school_management_app/models/firebase_user.dart';
 
 class TeacherListScreen extends StatefulWidget {
   const TeacherListScreen({super.key});
@@ -14,13 +14,22 @@ class TeacherListScreen extends StatefulWidget {
 }
 
 class _TeacherListScreenState extends State<TeacherListScreen> {
+  List<Teacher> _teacherList = [];
+  List<Teacher> _filteredTeacherList = [];
+  TextEditingController _searchController = TextEditingController();
 
-  List<Teacher> _TeacherList = [];
+  String adminPrefix = FirebaseHelper.getAdminPrefix();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
   void _loadData() async {
     final url = Uri.https(
-      'shopping-list2-bcc4b-default-rtdb.asia-southeast1.firebasedatabase.app',
-      'lecturer-data.json',
+      'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
+      '/$adminPrefix/teacher-data.json',
     );
     final response = await http.get(url);
     print('#debug Lecturer-list.dart');
@@ -42,7 +51,8 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
     }
 
     setState(() {
-      _TeacherList = _loadedData;
+      _teacherList = _loadedData;
+      print('teacher list: ${_teacherList.length}');
     });
   }
 
@@ -58,17 +68,16 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
 
   void _removeData(Teacher data) async {
     final url = Uri.https(
-      'shopping-list2-bcc4b-default-rtdb.asia-southeast1.firebasedatabase.app',
-      'lecturer-data/${data.id}.json',
+      'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
+      '/$adminPrefix/teacher-data/${data.id}.json',
     );
-
     try {
       final response = await http.delete(url);
 
       if (response.statusCode == 200) {
         // If the delete request is successful, remove the data from the local list
         setState(() {
-          _TeacherList.remove(data);
+          _teacherList.remove(data);
         });
 
         // show snackbar to indicate delete success
@@ -114,6 +123,15 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
     );
   }
 
+  void _searchTeacher(String query) {
+    setState(() {
+      _filteredTeacherList = _teacherList
+          .where((teacher) =>
+              teacher.staffId.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget content = const Center(
@@ -126,9 +144,9 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
       ),
     );
 
-    if (_TeacherList.isNotEmpty) {
+    if (_teacherList.isNotEmpty) {
       content = ListView.builder(
-        itemCount: _TeacherList.length,
+        itemCount: _teacherList.length,
         itemBuilder: (context, index) => Dismissible(
           direction: DismissDirection.endToStart,
           background: Container(
@@ -144,17 +162,19 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
             return await _showDeleteConfirmation(context);
           },
           onDismissed: (direction) {
-            _removeData(_TeacherList[index]);
+            _removeData(_teacherList[index]);
           },
-          key: ValueKey(_TeacherList[index].id),
+          key: ValueKey(_teacherList[index].id),
           child: ListTile(
-            title: Text(_TeacherList[index].fullName),
-            subtitle: Text(_TeacherList[index].staffId),
+            title: Text(_teacherList[index].fullName),
+            subtitle: Text(_teacherList[index].staffId),
             trailing: Text(
-              _TeacherList[index].faculty,
+              _teacherList[index].faculty,
             ),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => TeacherInfo(teacher: _TeacherList[index]),));
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => TeacherInfo(teacher: _teacherList[index]),
+              ));
             },
           ),
         ),
@@ -166,6 +186,15 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
         centerTitle: true,
         actions: [
           IconButton(
+            onPressed: () {
+              showSearch(
+                  context: context,
+                  delegate: TeacherSearchDelegate(
+                      _searchController, _searchTeacher, _teacherList));
+            },
+            icon: const Icon(Icons.search),
+          ),
+          IconButton(
             onPressed: _addData,
             icon: const Icon(Icons.add),
           ),
@@ -173,5 +202,84 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
       ),
       body: content,
     );
+  }
+}
+
+class TeacherSearchDelegate extends SearchDelegate {
+  final TextEditingController _searchController;
+  final Function(String) _onSearch;
+  final List<Teacher> _teacherList;
+
+  TeacherSearchDelegate(
+      this._searchController, this._onSearch, this._teacherList);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+          _searchController.clear();
+          _onSearch('');
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    _onSearch(query);
+    return ListView.builder(
+        itemCount: _teacherList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_teacherList[index].fullName),
+            subtitle: Text(_teacherList[index].staffId),
+            trailing: Text(
+              _teacherList[index].faculty,
+            ),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => TeacherInfo(teacher: _teacherList[index]),
+              ));
+            },
+          );
+        });
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestionList = _teacherList
+        .where((teacher) =>
+            teacher.staffId.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+    return ListView.builder(
+        itemCount: suggestionList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(suggestionList[index].fullName),
+            subtitle: Text(suggestionList[index].staffId),
+            trailing: Text(
+              suggestionList[index].faculty,
+            ),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) =>
+                    TeacherInfo(teacher: suggestionList[index]),
+              ));
+            },
+          );
+        });
   }
 }
