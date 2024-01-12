@@ -186,6 +186,7 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: 'Search teacher by staff id',
             onPressed: () {
               showSearch(
                   context: context,

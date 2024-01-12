@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:school_management_app/widgets/edit/edit_student_data.dart';
 import 'package:school_management_app/widgets/edit/edit_student_dc.dart';
 import 'package:school_management_app/models/firebase_user.dart';
+import 'package:school_management_app/widgets/edit/edit_student_result.dart';
 
 class StudentInfo extends StatefulWidget {
   final Student student;
@@ -35,7 +36,6 @@ class _StudentInfoState extends State<StudentInfo> {
     super.initState();
     loadDataDC();
     _loadDataResult();
-    
   }
 
   Future<void> loadDataDC() async {
@@ -110,6 +110,53 @@ class _StudentInfoState extends State<StudentInfo> {
     );
   }
 
+  void _showDeleteStudentResultDialog(Result result) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Student Result'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.warning,
+                size: 50,
+                color: Colors.red,
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Are you sure you want to delete this result?',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteStudentResult(result);
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _deleteDisciplineCase(DisciplineCase disciplineCase) async {
     final url = Uri.https(
       'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -147,6 +194,43 @@ class _StudentInfoState extends State<StudentInfo> {
     }
   }
 
+  void _deleteStudentResult(Result result) async {
+    final url = Uri.https(
+      'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
+      '/$adminPrefix/student-data/${widget.student.id}/result/${result.id}.json',
+    );
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        // Successfully deleted discipline case
+        _loadDataResult(); // Reload data to reflect changes
+
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Result deleted successfully'),
+          ),
+        );
+      } else {
+        // Handle error
+        print(
+            'Failed to delete result. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle error
+      print('Error deleting result: $error');
+
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cannot delete result'),
+        ),
+      );
+    }
+  }
+
   Future<void> _loadDataResult() async {
     final url = Uri.https(
         'school-management-app-f5bfc-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -168,6 +252,20 @@ class _StudentInfoState extends State<StudentInfo> {
       });
     }
   }
+
+  // void _navigateToEditStudentResult() async {
+  //   final result = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => UpdateStudentResult(student: widget.student, result: ),
+  //     ),
+  //   );
+
+  //   if (result == true) {
+  //     // If a new result is added, reload the result data
+  //     _loadDataResult();
+  //   }
+  // }
 
   void _navigateToAddStudentResult() async {
     final result = await Navigator.push(
@@ -331,13 +429,17 @@ class _StudentInfoState extends State<StudentInfo> {
                                   IconButton(
                                     icon: const Icon(Icons.edit,
                                         color: Colors.white),
-                                    onPressed: () {
-                                      Navigator.of(context)
+                                    onPressed: () async {
+                                      final result = await Navigator.of(context)
                                           .push(MaterialPageRoute(
                                         builder: (context) => UpdateStudentDC(
                                             student: widget.student,
                                             disciplineCase: disciplineCase),
                                       ));
+
+                                      if (result == true) {
+                                        loadDataDC();
+                                      }
                                     },
                                   ),
                                   IconButton(
@@ -371,12 +473,31 @@ class _StudentInfoState extends State<StudentInfo> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Results:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+           Row(
+            children: [
+              const Text(
+                'Results:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              Spacer(),
+              // IconButton(
+              //   tooltip: 'Edit result',
+              //   color: Colors.blueGrey,
+              //   icon: const Icon(Icons.edit),
+              //   onPressed: () {
+              //     // Add your edit logic here
+              //     // e.g., show a dialog to edit the result
+              //   },
+              // ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                color: Colors.purple,
+                onPressed: () => _navigateToAddStudentResult(),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Container(
@@ -390,17 +511,40 @@ class _StudentInfoState extends State<StudentInfo> {
             child: DataTable(
               columns: const [
                 DataColumn(label: Text('Subject')),
-                DataColumn(label: Text('Grade'))
+                DataColumn(label: Text('Grade')),
+                DataColumn(label: Text('     Action')),
               ],
               rows: _results
                   .map((result) => DataRow(
                         cells: [
                           DataCell(Text(result.subject)),
                           DataCell(Text('     ' + result.grade)),
+                          DataCell(Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit,
+                                color: Colors.blueAccent,),
+                                onPressed: () async {
+                                  final stuResult = await Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (context) => UpdateStudentResult(student: widget.student, result: result),)
+                                  );
+
+                                  if (stuResult == true) {
+                                    _loadDataResult();
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                color: Colors.red,),
+                                onPressed: () => _showDeleteStudentResultDialog(result),
+                              ),
+                            ],
+                          )),
                         ],
                       ))
                   .toList(),
-              columnSpacing: 200,
+              columnSpacing: 50,
               dataRowHeight: 50,
               headingRowColor:
                   MaterialStateColor.resolveWith((states) => Colors.grey),
@@ -409,21 +553,6 @@ class _StudentInfoState extends State<StudentInfo> {
               dividerThickness: 2,
             ),
           ),
-          //   for (var result in _results)
-          //     Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Text(
-          //           'Subject: ${result.subject}',
-          //           style: const TextStyle(fontSize: 16),
-          //         ),
-          //         Text(
-          //           'Grade: ${result.grade}',
-          //           style: const TextStyle(fontSize: 16),
-          //         ),
-          //         const SizedBox(height: 16),
-          //       ],
-          //     ),
           const SizedBox(height: 16),
         ],
       );

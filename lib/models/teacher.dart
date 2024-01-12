@@ -10,5 +10,5 @@ class Teacher {
       required this.staffId,
       required this.fullName,
       required this.faculty,
-      required this.subject});
+      required this.subject,});
 }

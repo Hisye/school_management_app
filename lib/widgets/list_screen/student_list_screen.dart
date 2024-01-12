@@ -193,6 +193,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: 'Search student by matric no',
             onPressed: () {
               showSearch(
                   context: context,
