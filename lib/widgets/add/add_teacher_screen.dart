@@ -66,7 +66,7 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Lecturer'),
+        title: const Text('Add Teacher'),
         centerTitle: true,
       ),
       body: Padding(
@@ -75,21 +75,29 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
           key: _formKey,
           child: Column(
             children: [
+              const SizedBox(height: 30,),
               // Staff ID
               TextFormField(
                 maxLength: 10,
-                decoration: const InputDecoration(
+                decoration:  InputDecoration(
                   labelText: 'Staff ID',
-                  prefixIcon: Icon(
+                  hintText: 'Enter the teacher staff id',
+                  labelStyle:
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                  prefixIcon: const Icon(
                     Icons.badge,
                     size: 30,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
+                      borderSide:
+                         const BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(10)),
+                  floatingLabelStyle: const TextStyle(
+                    fontSize: 18,
                   ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -110,18 +118,25 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
               // Full Name
               TextFormField(
                 maxLength: 50,
-                decoration: const InputDecoration(
+                decoration:  InputDecoration(
                   labelText: 'Full Name',
-                  prefixIcon: Icon(
+                  hintText: 'Enter the teacher full name',
+                  labelStyle:
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                  prefixIcon: const Icon(
                     Icons.person,
                     size: 30,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
+                      borderSide:
+                         const BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(10)),
+                  floatingLabelStyle: const TextStyle(
+                    fontSize: 18,
                   ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -142,18 +157,25 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
               // Faculty
               TextFormField(
                 maxLength: 10,
-                decoration: const InputDecoration(
+                decoration:  InputDecoration(
                   labelText: 'Faculty',
-                  prefixIcon: Icon(
+                  hintText: 'Enter the teacher faculty',
+                  labelStyle:
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                  prefixIcon: const Icon(
                     Icons.school,
                     size: 30,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
+                      borderSide:
+                         const BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(10)),
+                  floatingLabelStyle: const TextStyle(
+                    fontSize: 18,
                   ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
@@ -174,18 +196,25 @@ class _TeacherDataEntryState extends State<TeacherDataEntry> {
               // Subject
               TextFormField(
                 maxLength: 30,
-                decoration: const InputDecoration(
-                  labelText: 'Subject',
-                  prefixIcon: Icon(
+                decoration:  InputDecoration(
+                  labelText: 'Subjevt',
+                  hintText: 'Enter the teacher subject',
+                  labelStyle:
+                      const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                  prefixIcon: const Icon(
                     Icons.book,
                     size: 30,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 3,
-                      color: Colors.purple,
-                    ),
+                      borderSide:
+                         const BorderSide(color: Colors.grey, width: 2),
+                      borderRadius: BorderRadius.circular(10)),
+                  floatingLabelStyle: const TextStyle(
+                    fontSize: 18,
                   ),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(width: 1.5),
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null ||
